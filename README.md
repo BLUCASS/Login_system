@@ -1,7 +1,8 @@
 # LOGIN SYSTEM
 
 ## DESCRIPTION:
-This is a simple login system written in Python, utilizing SQLAlchemy and SQLite. It enables users to register, search, read, update, delete, and change passwords. User details are stored in an SQLite database without the need to install a MySQL Server.
+This is a simple login system written in Python, utilizing SQLAlchemy and SQLite. It enables users to register, sign in, search, read, update, delete, and change passwords. User details are stored in an SQLite database without the need to install a MySQL Server.
+The database keeps the password using sha256.
 
 ## REQUIREMENTS:
 - [Python3](https://docs.python.org/3/)

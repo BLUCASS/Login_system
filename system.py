@@ -39,7 +39,7 @@ class System(Base):
     user = Column(String(20), nullable=False)
     name = Column(String(50), nullable=False)
     email = Column(String(30), nullable=False)
-    passwd = Column(String(20), nullable=False)
+    passwd = Column(String(35), nullable=False)
 
 
 Base.metadata.create_all(engine)

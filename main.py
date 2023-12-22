@@ -44,6 +44,7 @@ def email():
 
 
 def passwd():
+    from hashlib import sha256
     # Creating a pattern for the password
     while True:
         passwd = str(input('Password: ')).strip()
@@ -51,9 +52,10 @@ def passwd():
             print('Your password MUST contain an upper case letter.')
         elif not any(letter.isdigit() for letter in passwd):
             print('Your password MUST contain a number.')
-        elif len(passwd) > 20:
-            print('No more than 20 letter/numbers.')
+        elif len(passwd) < 8 and len(passwd) > 20:
+            print('No less than 8 and no more than 20 letter/numbers.')
         else:
+            passwd = sha256(passwd.encode()).hexdigest()
             return passwd
 
 
@@ -85,10 +87,9 @@ def insert_data():
 def read_table():
     # Printing the entire Db
     data = session.query(System).all()
-    print(f'\033[1;30;44m{"USERNAME":<20}{"FULL NAME":<50}{"EMAIL":<30}{"PASSWORD":<20}\033[m')
+    print(f'\033[1;30;44m{"USERNAME":<20}{"FULL NAME":<50}{"EMAIL":<30}{"PASSWORD":<35}\033[m')
     for line in data:
-        hidden_passwd = '*' * len(line.passwd)
-        print(f'{line.user:<20}{line.name:<50}{line.email:<30}{hidden_passwd:<20}')
+        print(f'{line.user:<20}{line.name:<50}{line.email:<30}{line.passwd:<35}')
     session.close()
 
 
@@ -96,10 +97,9 @@ def read_line(cond):
     # Printing a specific search
     try:
         data = session.query(System).filter(cond)
-        print(f'\033[1;30;44m{"USERNAME":<20}{"FULL NAME":<50}{"EMAIL":<30}{"PASSWORD":<20}\033[m')
+        print(f'\033[1;30;44m{"USERNAME":<20}{"FULL NAME":<50}{"EMAIL":<30}{"PASSWORD":<35}\033[m')
         for line in data:
-            hidden_passwd = '*' * len(line.passwd)
-            print(f'{line.user:<20}{line.name:<50}{line.email:<30}{hidden_passwd:<20}')
+            print(f'{line.user:<20}{line.name:<50}{line.email:<30}{line.passwd:<35}')
     except:
         print('\033[31mEMAIL NOT FOUND\033[m')
     finally:
@@ -169,12 +169,29 @@ def del_data():
         session.close()
 
 
-while True:
-    print(f'\033[1;30;44m{"MAIN MENU":^120}\033[m')
+# IMPLEMENTING CRIPTOGRAPHY
+def sign_in():
+    from hashlib import sha256
     try:
-        print(f'\033[34m[1] READ DATABASE\n[2] SEARCH BY EMAIL\n[3] SIGN UP\n[4] UPDATE INFORMATION\n[5] DELETE PERSON\n[6] CHANGE PASSWORD\n[7] EXIT\033[m')
+        data = session.query(System).filter(filter_email())
+    except:
+        print('\033[31mEMAIL NOT FOUND\033[m')
+    else:
+        login_passwd = str(input('Password: ')).strip()
+        login_passwd = sha256(login_passwd.encode()).hexdigest()
+        for info in data:
+            if login_passwd == info.passwd:
+                print('SUCCESSFULLY LOGGED IN')
+            else:
+                print('\033[31mWRONG PASSWORD\033[m')        
+
+
+while True:
+    print(f'\033[1;30;44m{"MAIN MENU":^135}\033[m')
+    try:
+        print(f'\033[34m[1] READ DATABASE\n[2] SEARCH BY EMAIL\n[3] SIGN UP\n[4] UPDATE INFORMATION\n[5] DELETE PERSON\n[6] CHANGE PASSWORD\n[7] SIGN IN\n[8] EXIT\033[m')
         opt = int(input('Choose your option: '))
-        assert 1 <= opt <= 7
+        assert 1 <= opt <= 8
     except KeyboardInterrupt:
         break
     except:
@@ -200,6 +217,9 @@ while True:
             update_passwd()
             sleep(3)
         elif opt == 7:
+            sign_in()
+            sleep(3)
+        elif opt == 8:
             print('\033[34mPROGRAM FINISHED.\033[m')
             sleep(3)
             break
